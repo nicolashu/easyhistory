@@ -15,8 +15,8 @@ from . import store
 
 class Day:
     SINA_API = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/stockid/{stock_code}.phtml'
-    SINA_API_HOSTNAME = 'vip.stock.finance.sina.com.cn'
-    STOCK_CODE_API = 'http://218.244.146.57/static/all.csv'
+    # SINA_API_HOSTNAME = 'vip.stock.finance.sina.com.cn'
+    # STOCK_CODE_API = 'http://218.244.146.57/static/all.csv'
 
     def __init__(self, path='history', export='csv'):
         self.store = store.use(export=export, path=path, dtype='D')
@@ -82,7 +82,7 @@ class Day:
         year_history = []
         now_year = datetime.now().year
         now_month = datetime.now().month
-        end_quarter = 5 if str(year) != str(now_year) else math.ceil(now_month / 3) + 1
+        end_quarter = 5 if str(year) != str(now_year) else int(math.ceil(now_month / 3.0) + 1)
         for quarter in range(1, end_quarter):
             quarter_data = self.get_quarter_history(stock_code, year, quarter)
             if quarter_data is None:

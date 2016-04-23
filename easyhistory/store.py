@@ -3,7 +3,8 @@ import json
 import os
 from datetime import datetime
 
-import easyutils
+# import easyutils
+import helpers
 import pandas as pd
 
 
@@ -79,7 +80,8 @@ class CSVStore(Store):
 
     @property
     def init_stock_codes(self):
-        stock_codes = easyutils.stock.get_all_stock_codes()
+        # stock_codes = easyutils.stock.get_all_stock_codes()
+        stock_codes = helpers.get_all_stock_codes()
         exists_codes = set()
         if os.path.exists(self.raw_path):
             code_slice = slice(stop=-4)
