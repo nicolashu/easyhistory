@@ -27,6 +27,9 @@ class CSVStore(Store):
             self.path = os.path.join(path, 'day')
         self.result_path = os.path.join(self.path, 'data')
         self.raw_path = os.path.join(self.path, 'raw_data')
+        factors_path = os.path.join(self.raw_path, 'factors.json')
+        with open(factors_path) as f:
+            self.factors = json.load(f)
 
     def write(self, stock_code, updated_data):
         if not os.path.exists(self.result_path):
@@ -47,7 +50,9 @@ class CSVStore(Store):
             his = old_his.append(updated_his)
         else:
             his = pd.DataFrame(updated_data,
-                               columns=['date', 'open', 'high', 'close', 'low', 'volume', 'amount', 'factor'])
+                               # columns=['date', 'open', 'high', 'close', 'low', 'volume', 'amount'])
+                               # columns=['date', 'open', 'high', 'close', 'low', 'volume', 'amount', 'factor'])
+                               columns=['date', 'close', 'factor'])
         his.to_csv(csv_file_path, index=False)
         date = his.iloc[-1].date
         self.write_summary(stock_code, date)
@@ -59,6 +64,16 @@ class CSVStore(Store):
             summary = json.load(f)
         latest_date = datetime.strptime(summary['date'], '%Y-%m-%d')
         return latest_date
+
+    def get_factors(self, stock_code, date):
+        if stock_code not in self.factors:
+            return 1
+        factors = self.factors[stock_code]
+        result = 1
+        for item in factors:
+            if date < item['date']:
+                result = result * item['factor']
+        return result
 
     def write_summary(self, stock_code, date):
         file_path = os.path.join(self.raw_path, '{}_summary.json'.format(stock_code))
@@ -75,7 +90,11 @@ class CSVStore(Store):
     def write_factor_his(self, stock_code, his):
         result_file_path = os.path.join(self.result_path, '{}.csv'.format(stock_code))
         factor_cols = his.columns.difference(['date'])
-        his[factor_cols] = his[factor_cols] / his.factor.max()
+        ## stock
+        # his[factor_cols] = his[factor_cols] / his.factor.max()
+        ## fund
+        his[factor_cols] = his[factor_cols].div(his[factor_cols].factor, axis='index')
+        his = his.round({'close': 3})
         his.to_csv(result_file_path, index=False)
 
     @property

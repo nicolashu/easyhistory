@@ -14,15 +14,16 @@ from . import store
 
 
 class Day:
-    SINA_API = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/stockid/{stock_code}.phtml'
+    # SINA_API = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/stockid/{stock_code}.phtml'
+    SINA_API = 'http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/{stock_code}/type/S.phtml'
     # SINA_API_HOSTNAME = 'vip.stock.finance.sina.com.cn'
     # STOCK_CODE_API = 'http://218.244.146.57/static/all.csv'
 
     def __init__(self, path='history', export='csv'):
         self.store = store.use(export=export, path=path, dtype='D')
 
-    def init(self):
-        stock_codes = self.store.init_stock_codes
+    def init(self, stock_codes):
+        # stock_codes = self.store.init_stock_codes
         pool = ThreadPool(10)
         pool.map(self.init_stock_history, stock_codes)
 
@@ -131,10 +132,10 @@ class Day:
             with open('error.txt', 'a+') as f:
                 f.write('{},{},{}'.format(stock_code, year, quarter))
             return list()
-        res = self.handle_quarter_history(rep.text)
+        res = self.handle_quarter_history(rep.text, stock_code)
         return res
 
-    def handle_quarter_history(self, rep_html):
+    def handle_quarter_history(self, rep_html, stock_code):
         dom = PyQuery(rep_html)
         raw_trows = dom('#FundHoldSharesTable tr')
         empty_history_nodes = 2
@@ -151,9 +152,14 @@ class Day:
             for i, td in enumerate(td_list):
                 td_content = td.text_content()
                 date_index = 0
+                close_index = 3
+                factor_index = 7
                 if i == date_index:
                     td_content = re.sub(r'\r|\n|\t', '', td_content)
-                day_history.append(td_content)
+                if i in set([date_index, close_index, factor_index]):
+                    day_history.append(td_content)
+            if len(day_history) < 3:
+                day_history.append(self.store.get_factors(stock_code, day_history[0]))
             self.convert_stock_data_type(day_history)
             res.append(day_history)
         return res
