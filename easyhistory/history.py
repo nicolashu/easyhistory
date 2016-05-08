@@ -34,16 +34,25 @@ class History(object):
     def __init__(self, dtype='D', path='history'):
         self.market = dict()
         data_path = os.path.join(path, 'day', 'data')
-        self.load_csv_files(data_path)
+        self.load_csv_files(data_path, dtype)
 
-    def load_csv_files(self, path):
+    def load_csv_files(self, path, dtype):
         file_list = [f for f in os.listdir(path) if f.endswith('.csv')]
         for stock_csv in file_list:
             csv_ext_index_start = -4
             stock_code = stock_csv[:csv_ext_index_start]
 
             csv_path = os.path.join(path, stock_csv)
-            self.market[stock_code] = Indicator(stock_code, pd.read_csv(csv_path, index_col='date'))
+            daily = pd.read_csv(csv_path, index_col='date')
+            daily = daily.drop('factor', 1)
+            daily.index = pd.to_datetime(daily.index)
+
+            history = daily.resample(dtype).apply(self.resampler)
+            self.market[stock_code] = Indicator(stock_code, history[(history.close > 0)])
 
     def __getitem__(self, item):
         return self.market[item]
+
+    @staticmethod
+    def resampler(array_like):
+        return array_like.tail(1)

@@ -1,0 +1,28 @@
+分级B：http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/150153/type/S.phtml
+
+ETF：http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/159915/type/S.phtml
+
+指数：http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_MarketHistory/stockid/000001/type/S.phtml
+
+股票：http://vip.stock.finance.sina.com.cn/corp/go.php/vMS_FuQuanMarketHistory/stockid/000001.phtml
+
+Au99.99：http://vip.stock.finance.sina.com.cn/q/view/vGold_History.php?jys=0&pz=6&breed=Au99.99&start=2000-01-01&end=2016-04-23
+
+his = easyhistory.History(dtype='D')
+dtype取值: 日线 - D, 周线 - W, 月线 - M
+
+创业板指：399006	2010-06-01
+沪深300：399300
+中证医药：399933	2009-07-03
+军工指数：399959  2011-08-30
+国证有色: 399395  2012-10-29
+国证食品: 399396  2012-10-29
+国证地产: 399393  2012-08-20
+中证500: 399905
+中小板指: 399005
+中证转债: 000832  2012-09-12
+中证金融: 399934
+Au99.99: au99
+
+{'399006': '创业板指', '399300': '沪深300', '399933': '中证医药', '399959': '军工指数', '399395': '国证有色',
+'399396': '国证食品', '399393': '国证地产', '399905': '中证500', '399005': '中小板指', '000832': '中证转债', '399934', '中证金融', 'au99': 'Au99.99'}
